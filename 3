@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+def mapper():
+
+    # Initialize a set to store unique terms
+
+    terms_set = set()
+
+
+
+    # Read from standard input
+
+    for line in sys.stdin:
+
+        # Split the line into term and count
+
+        term, _ = line.strip().split('\t', 1)
+
+        terms_set.add(term)
+
+
+
+    # Emit each term
+
+    for term in terms_set:
+
+        print(f"{term}\t1")
+
+
+
+if __name__ == "__main__":
+
+    mapper()
+
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+def reducer():
+
+    current_term = None
+
+    term_count = 0
+
+
+
+    # Iterate over each line of input from stdin
+
+    for line in sys.stdin:
+
+        # Split the line into term and count
+
+        term, count = line.strip().split('\t', 1)
+
+
+
+        # Convert count to integer
+
+        count = int(count)
+
+
+
+        # If the current term is the same as the previous term, increment count
+
+        if current_term == term:
+
+            term_count += count
+
+        else:
+
+            # If the term changes, emit the term and its count
+
+            if current_term is not None:
+
+                print(f"{current_term}\t{term_count}")
+
+            current_term = term
+
+            term_count = count
+
+    
+
+    # Emit the final term and count
+
+    if current_term is not None:
+
+        print(f"{current_term}\t{term_count}")
+
+
+
+if __name__ == "__main__":
+
+    reducer()
+
