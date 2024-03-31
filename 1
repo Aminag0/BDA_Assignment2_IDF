@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+
+
+
+
+
+
+
+import sys
+
+import csv
+
+
+
+# Mapper function to emit words with count 1
+
+def mapper():
+
+    # Read input from stdin
+
+    reader = csv.reader(sys.stdin)
+
+    
+
+    # Iterate over each row in the CSV file
+
+    for row in reader:
+
+        # Extract the SECTION_TEXT_CLEAN column (preprocessed text)
+
+        section_text_clean = row[1].strip().split()
+
+        
+
+        # Emit each word with count 1
+
+        for word in section_text_clean:
+
+            # Emit word and count separated by a tab
+
+            print(f"{word}\t1")
+
+
+
+if __name__ == "__main__":
+
+    mapper()
+
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+# Reducer function to aggregate word counts
+
+def reducer():
+
+    current_word = None
+
+    word_count = 0
+
+    
+
+    # Iterate over each line of input from stdin
+
+    for line in sys.stdin:
+
+        # Split the line into word and count
+
+        word, count = line.strip().split('\t', 1)
+
+        
+
+        # Convert count to integer
+
+        count = int(count)
+
+        
+
+        # If the current word is the same as the previous word, increment count
+
+        if current_word == word:
+
+            word_count += count
+
+        else:
+
+            # If the word changes, emit the word and its count
+
+            if current_word:
+
+                print(f"{current_word}\t{word_count}")
+
+            current_word = word
+
+            word_count = count
+
+    
+
+    # Emit the final word and count
+
+    if current_word:
+
+        print(f"{current_word}\t{word_count}")
+
+
+
+if __name__ == "__main__":
+
+    reducer()
+
