@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+def mapper():
+
+    # Load vocabulary from created_vocabulary.txt
+
+    vocabulary = set()
+
+    with open("created_vocabulary.txt", "r") as vocab_file:
+
+        for line in vocab_file:
+
+            term, _ = line.strip().split('\t', 1)
+
+            vocabulary.add(term)
+
+
+
+    # Initialize a dictionary to store term counts for each document
+
+    document_term_counts = {}
+
+
+
+    # Read from document_count.txt
+
+    with open("vocabulary.txt", "r") as doc_count_file:
+
+        for line in doc_count_file:
+
+            # Split the line into term and count
+
+            term, count = line.strip().split('\t', 1)
+
+
+
+            # Split the term into document ID and word
+
+            parts = term.split(' ')
+
+            doc_id = parts[0]
+
+            word = ' '.join(parts[1:])
+
+
+
+            # Initialize the dictionary for the document if not already present
+
+            if doc_id not in document_term_counts:
+
+                document_term_counts[doc_id] = {}
+
+
+
+            # Store the count of the term in the document
+
+            document_term_counts[doc_id][word] = int(count)
+
+
+
+    # Emit each document ID along with its term counts
+
+    for doc_id, term_counts in document_term_counts.items():
+
+        # Combine the document ID and term counts into a single string
+
+        term_count_str = ','.join([f"{word}:{count}" for word, count in term_counts.items() if word in vocabulary])
+
+        print(f"{doc_id}\t{term_count_str}")
+
+
+
+if __name__ == "__main__":
+
+    mapper()
+
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+def reducer():
+
+    current_doc_id = None
+
+    term_counts = {}
+
+
+
+    # Iterate over each line of input from stdin
+
+    for line in sys.stdin:
+
+        # Split the line into document ID and term count string
+
+        parts = line.strip().split()
+
+        doc_id = parts[0]
+
+        term_count_str = ' '.join(parts[1:])
+
+
+
+        # If the document ID changes, emit the TF for the previous document
+
+        if current_doc_id != doc_id:
+
+            if current_doc_id:
+
+                print_tf(current_doc_id, term_counts)
+
+            current_doc_id = doc_id
+
+            term_counts = {}
+
+
+
+        # Split the term count string into individual term counts
+
+        term_counts.update(parse_term_counts(term_count_str))
+
+
+
+    # Emit the TF for the final document
+
+    if current_doc_id:
+
+        print_tf(current_doc_id, term_counts)
+
+
+
+def parse_term_counts(term_count_str):
+
+    term_counts = {}
+
+    # Split the term count string into individual term counts
+
+    for term_count_pair in term_count_str.split(','):
+
+        parts = term_count_pair.split(':')
+
+        if len(parts) == 2:
+
+            term, count = parts
+
+            term_counts[term] = int(count)
+
+        elif len(parts) == 1:
+
+            term_counts[parts[0]] = 1  # If count is missing, assume it's 1
+
+    return term_counts
+
+
+
+def print_tf(doc_id, term_counts):
+
+    # Compute the total term count in the document
+
+    total_terms = sum(term_counts.values())
+
+
+
+    # Emit the TF for each term in the document
+
+    for term, count in term_counts.items():
+
+        tf = count / total_terms
+
+        print(f"{doc_id}\t{term}\t{tf}")
+
+
+
+if __name__ == "__main__":
+
+    reducer()
+
