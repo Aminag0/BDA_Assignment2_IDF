@@ -1,0 +1,114 @@
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+# Mapper function to emit term counts
+
+def mapper():
+
+    # Initialize a dictionary to store term counts
+
+    term_counts = {}
+
+
+
+    # Iterate over each line in the input
+
+    for line in sys.stdin:
+
+        # Tokenize input line based on whitespace
+
+        words = line.strip().split()
+
+        
+
+        # Count the frequency of each term in the document
+
+        for word in words:
+
+            term_counts[word] = term_counts.get(word, 0) + 1
+
+
+
+    # Emit each term along with its count
+
+    for term, count in term_counts.items():
+
+        print(f"{term}\t{count}")
+
+
+
+if __name__ == "__main__":
+
+    mapper()
+
+#!/usr/bin/env python3
+
+
+
+import sys
+
+
+
+# Reducer function to aggregate term counts
+
+def reducer():
+
+    current_term = None
+
+    term_count = 0
+
+
+
+    # Iterate over each line of input from stdin
+
+    for line in sys.stdin:
+
+        # Split the line into term and count
+
+        term, count = line.strip().split('\t', 1)
+
+
+
+        # Convert count to integer
+
+        count = int(count)
+
+
+
+        # If the current term is the same as the previous term, increment count
+
+        if current_term == term:
+
+            term_count += count
+
+        else:
+
+            # If the term changes, emit the term and its count
+
+            if current_term:
+
+                print(f"{current_term}\t{term_count}")
+
+            current_term = term
+
+            term_count = count
+
+
+
+    # Emit the final term and count
+
+    if current_term:
+
+        print(f"{current_term}\t{term_count}")
+
+
+
+if __name__ == "__main__":
+
+    reducer()
+
